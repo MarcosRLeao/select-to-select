@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <select id="users">
+      <option disabled selected>selecionar</option>
+    </select>
+    <select id="todos" disabled>
+      <option>aguardando...</option>
+    </select>
+
+    <script>
+      console.clear();
+
+      let listUsers = document.getElementById("users");
+      let listTodos = document.getElementById("todos");
+
+      function clearOptions(el) {
+        listTodos.disabled = true;
+
+        while (el.firstChild) {
+          el.removeChild(el.firstChild);
+        }
+      }
+
+      function fillList(list, value, label) {
+        let opt = document.createElement("option");
+        opt.value = value;
+        opt.innerText = label;
+
+        list.appendChild(opt);
+      }
+
+      async function getUsers() {
+        let response = await fetch(
+          "https://jsonplaceholder.typicode.com/users"
+        );
+        let users = await response.json();
+
+        users.forEach(({ id, name }) => fillList(listUsers, id, name));
+      }
+
+      async function getTodos(e) {
+        clearOptions(listTodos);
+
+        let userId = e.target.value;
+        let response = await fetch(
+          `https://jsonplaceholder.typicode.com/users/${userId}/todos`
+        );
+        let todos = await response.json();
+
+        todos.forEach(({ id, title }) => fillList(listTodos, id, title));
+
+        listTodos.disabled = false;
+      }
+
+      getUsers();
+      listUsers.addEventListener("change", getTodos);
+    </script>
+  </body>
+</html>
